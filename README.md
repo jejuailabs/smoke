@@ -5,7 +5,7 @@ This directory contains the Next.js application under development. The existing 
 ## Local setup
 
 1. Install Node.js 24 or a supported Node.js release and run `npm ci`.
-2. Copy `.env.example` to `.env.local` and fill in the Firebase web app values.
+2. The public Firebase web app configuration is in `firebase-web-config.json` and uses `smoke-529c6`. Optional `.env.local` overrides apply only when `NEXT_PUBLIC_FIREBASE_PROJECT_ID` matches that project, so old test-project settings cannot change the app identity.
 3. Enable Google sign-in and Cloud Firestore in a **development** Firebase project. Add the local and preview domains to the Firebase authorized domains.
 4. Deploy `firestore.rules` to that development project before creating user data. Keep preview and production Firebase projects separate.
 5. Run `npm run dev`, then open `/` (Korean landing page) or `/en`.
@@ -32,7 +32,7 @@ The route file is named `page.tsx`. Next.js uses `[locale]` for the `/ko` and `/
 
 The landing page includes a sample-data simulation. Its **Try it** action opens `/experience/login.html`, where Google sign-in creates or opens a Firebase account. `/experience/projects.html` opens the browser-local demo without signing in. The signed-in workspace stores projects, experiment plans and manually entered metrics, validation settings, outlet selections, release drafts, and distribution records in `users/{uid}` in Firestore. The browser-local demo and signed-in data are separate.
 
-`predev`, `prebuild`, and `build:preview` generate the ignored `public/experience/js/firebase-config.js` from the public `NEXT_PUBLIC_FIREBASE_*` variables. The local `.env.local` is ignored by Git. Deploy `firestore.rules` to the configured **development** Firebase project before relying on signed-in writes. Google sign-in also requires the app domain in Firebase Authentication's authorized domains.
+`predev`, `prebuild`, and `build:preview` generate the ignored `public/experience/js/firebase-config.js` from `firebase-web-config.json`. Matching `NEXT_PUBLIC_FIREBASE_*` values can override it. The local `.env.local` is ignored by Git. Deploy `firestore.rules` to the configured Firebase project before relying on signed-in writes. Google sign-in also requires the app domain in Firebase Authentication's authorized domains.
 
 The Meta, YouTube, and Reddit integration page accurately shows disconnected services. Experiment metrics are entered manually. The release page can open a mail draft and record outcomes, but cannot verify delivery or send automatically.
 

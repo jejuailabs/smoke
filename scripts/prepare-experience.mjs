@@ -2,6 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
+const defaultConfig = JSON.parse(readFileSync(resolve(root, "firebase-web-config.json"), "utf8"));
 const localEnv = resolve(root, ".env.local");
 const values = { ...process.env };
 
@@ -24,11 +25,14 @@ const fields = {
   measurementId: "NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID",
 };
 
+// The committed web app identity is authoritative. Hosting may still have
+// environment variables from the previous test project.
+const useEnvironment = values.NEXT_PUBLIC_FIREBASE_PROJECT_ID === defaultConfig.projectId;
 const firebaseConfig = Object.fromEntries(
-  Object.entries(fields).map(([field, name]) => [field, values[name] || ""]),
+  Object.entries(fields).map(([field, name]) => [field, useEnvironment && values[name] ? values[name] : defaultConfig[field]]),
 );
 writeFileSync(
   resolve(root, "public", "experience", "js", "firebase-config.js"),
   `export const firebaseConfig = ${JSON.stringify(firebaseConfig, null, 2)};\n`,
 );
-console.log("Prepared experience Firebase web configuration.");
+console.log(`Prepared experience Firebase web configuration for ${firebaseConfig.projectId}.`);
