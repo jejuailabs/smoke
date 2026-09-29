@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function workspacePath(workspaceId) { return /databases/$(database)/documents/workspaces/$(workspaceId); }
+    function isMember(workspaceId) {
+      return signedIn() && exists(workspacePath(workspaceId))
+        && request.auth.uid in get(workspacePath(workspaceId)).data.memberIds
+        && get(workspacePath(workspaceId)).data.memberRoles[request.auth.uid] in ['owner', 'admin', 'editor', 'viewer'];
+    }
+    function hasRole(workspaceId, roles) {
+      return isMember(workspaceId) && get(workspacePath(workspaceId)).data.memberRoles[request.auth.uid] in roles;
+    }
+    function isOwner(workspaceId) {
+      return hasRole(workspaceId, ['owner']) && get(workspacePath(workspaceId)).data.ownerId == request.auth.uid;
+    }
+
+    match /users/{userId} {
+      allow read, create, update: if signedIn() && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    match /workspaces/{workspaceId} {
+      allow create: if signedIn()
+        && workspaceId == request.auth.uid
+        && request.resource.data.ownerId == request.auth.uid
+        && request.resource.data.memberIds == [request.auth.uid]
+        && request.resource.data.memberRoles.keys().hasOnly([request.auth.uid])
+        && request.resource.data.memberRoles[request.auth.uid] == 'owner';
+      allow get: if signedIn() && (workspaceId == request.auth.uid || (request.auth.uid in resource.data.memberIds && resource.data.memberRoles[request.auth.uid] in ['owner', 'admin', 'editor', 'viewer']));
+      allow list: if isMember(workspaceId);
+      allow update: if isOwner(workspaceId)
+        && request.resource.data.ownerId == resource.data.ownerId
+        && request.resource.data.memberRoles[resource.data.ownerId] == 'owner'
+        && resource.data.ownerId in request.resource.data.memberIds;
+      allow delete: if false;
+    }
+
+    match /projects/{projectId} {
+      allow create: if signedIn()
+        && hasRole(request.resource.data.workspaceId, ['owner', 'admin', 'editor'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100;
+      allow read: if isMember(resource.data.workspaceId);
+      allow update: if hasRole(resource.data.workspaceId, ['owner', 'admin', 'editor'])
+        && request.resource.data.workspaceId == resource.data.workspaceId;
+      allow delete: if hasRole(resource.data.workspaceId, ['owner', 'admin']);
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "product",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "build:preview": "node scripts/build-preview.mjs",
+    "start": "next start",
+    "lint": "eslint",
+    "test": "node --test tests/access.test.mjs tests/archive-preflight.test.mjs tests/artifact-intake.test.mjs tests/demo-history.test.mjs tests/mock-experiment.test.mjs tests/pr-release.test.mjs tests/preview-run.test.mjs tests/validation.test.mjs"
+  },
+  "dependencies": {
+    "firebase": "^12.19.0",
+    "next": "16.3.6",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.3.6",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
