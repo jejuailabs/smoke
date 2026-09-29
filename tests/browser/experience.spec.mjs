@@ -76,11 +76,13 @@ test('workspace load failure retains retry and account recovery',async({page})=>
   await signedInFixture(page);
   await page.route('https://www.gstatic.com/firebasejs/**/firebase-firestore.js',route=>route.fulfill({contentType:'text/javascript',body:`
     export const getFirestore=()=>({});export const collection=()=>'';export const doc=()=>'';
-    export const getDocs=async()=>{throw Error('Simulated permission failure')};export const getDoc=async()=>({});
+    export const getDocs=async()=>{throw Object.assign(Error('Simulated permission failure'),{code:'permission-denied'})};export const getDoc=async()=>({});
     export const setDoc=async()=>{};export const deleteDoc=async()=>{};
   `}));
   await page.goto('/experience/projects.html');
   await expect(page.getByRole('heading',{name:'작업공간을 불러오지 못했습니다'})).toBeVisible();
+  await expect(page.getByText('오류 코드: permission-denied')).toBeVisible();
+  await expect(page.getByText('관리자가 이 Firebase 프로젝트에 사용자별 보안 규칙을 게시해야 합니다.',{exact:false})).toBeVisible();
   await expect(page.getByRole('button',{name:'다른 계정으로 로그인'})).toBeVisible();
   await expect(page.getByRole('link',{name:'다시 시도',exact:true})).toBeVisible();
 });

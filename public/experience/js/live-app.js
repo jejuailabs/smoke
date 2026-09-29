@@ -35,7 +35,13 @@ try {
   const savedById = new Map(saved.map(channel => [channel.id, channel]));
   channels = [...OUTLETS.map(channel => ({...channel, ...savedById.get(channel.id)})), ...saved.filter(channel => !OUTLETS.some(item => item.id === channel.id))];
 } catch (error) {
-  root.innerHTML = `<main class="content narrow">${card('<h1>작업공간을 불러오지 못했습니다</h1><p>인터넷 연결을 확인한 뒤 다시 시도해 주세요. 문제가 계속되면 다른 계정으로 로그인하거나 관리자에게 문의해 주세요.</p><div class="actions"><a class="button primary" href="">다시 시도</a><button class="button secondary" id="recovery-logout" type="button">다른 계정으로 로그인</button><a class="button secondary" href="../ko">홈으로</a></div>')}</main>`;
+  const code = String(error.code || 'unknown').replace(/[^a-z0-9/-]/gi, '').slice(0, 60);
+  const guidance = code === 'permission-denied'
+    ? 'Firestore에서 계정의 작업공간 읽기를 거부했습니다. 관리자가 이 Firebase 프로젝트에 사용자별 보안 규칙을 게시해야 합니다.'
+    : code === 'unavailable'
+      ? '데이터베이스에 연결할 수 없습니다. 인터넷 연결을 확인한 뒤 다시 시도해 주세요.'
+      : 'Firebase 데이터베이스와 보안 규칙 설정을 확인해 주세요.';
+  root.innerHTML = `<main class="content narrow">${card(`<h1>작업공간을 불러오지 못했습니다</h1><p>${guidance}</p><p class="muted">오류 코드: <code>${esc(code)}</code></p><div class="actions"><a class="button primary" href="">다시 시도</a><button class="button secondary" id="recovery-logout" type="button">다른 계정으로 로그인</button><a class="button secondary" href="../ko">홈으로</a></div>`)}</main>`;
   document.getElementById('recovery-logout').onclick = async () => {
     try { await window.LAUNCHOPS_AUTH.signOut(); location.replace('login.html'); }
     catch { alert('로그아웃하지 못했습니다. 잠시 후 다시 시도해 주세요.'); }
