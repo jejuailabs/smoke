@@ -4,12 +4,15 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "test:browser": "playwright test",
+    "predev": "node scripts/prepare-experience.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/prepare-experience.mjs",
     "build": "next build",
     "build:preview": "node scripts/build-preview.mjs",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test tests/access.test.mjs tests/archive-preflight.test.mjs tests/artifact-intake.test.mjs tests/demo-history.test.mjs tests/mock-experiment.test.mjs tests/pr-release.test.mjs tests/preview-run.test.mjs tests/validation.test.mjs"
+    "test": "node --test tests/experience-session.test.mjs tests/access.test.mjs tests/archive-preflight.test.mjs tests/artifact-intake.test.mjs tests/demo-history.test.mjs tests/mock-experiment.test.mjs tests/pr-release.test.mjs tests/preview-run.test.mjs tests/validation.test.mjs"
   },
   "dependencies": {
     "firebase": "^12.19.0",
@@ -18,6 +21,7 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

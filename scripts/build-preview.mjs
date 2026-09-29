@@ -1,6 +1,7 @@
 import { cpSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
+import "./prepare-experience.mjs";
 
 const product = resolve(import.meta.dirname, "..");
 const destination = resolve(product, "..", "dist", "preview");
@@ -11,7 +12,7 @@ const result = spawnSync(process.execPath, [resolve(product, "node_modules", "ne
 });
 if (result.status !== 0) process.exit(result.status ?? 1);
 const output = resolve(product, "out");
-if (!existsSync(resolve(output, "ko", "index.html")) || !existsSync(resolve(output, "en", "workspace", "index.html")) || !existsSync(resolve(output, "ko", "experiments", "index.html")) || !existsSync(resolve(output, "ko", "intake", "index.html"))) {
+if (!existsSync(resolve(output, "index.html")) || !existsSync(resolve(output, "ko", "index.html")) || !existsSync(resolve(output, "en", "workspace", "index.html")) || !existsSync(resolve(output, "ko", "experiments", "index.html")) || !existsSync(resolve(output, "ko", "intake", "index.html")) || !existsSync(resolve(output, "experience", "login.html")) || !existsSync(resolve(output, "experience", "js", "live-app.js")) || !existsSync(resolve(output, "landing", "validation-hero.png"))) {
   throw new Error("Preview export did not include required routes");
 }
 cpSync(output, destination, { recursive: true, force: true });

@@ -5,6 +5,13 @@ import nextTs from "eslint-config-next/typescript";
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
+  {
+    files: ["public/experience/js/**/*.js"],
+    rules: {
+      // These files navigate between standalone HTML documents outside Next's router.
+      "@next/next/no-location-assign-relative-destination": "off",
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

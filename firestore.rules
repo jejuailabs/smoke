@@ -20,6 +20,14 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    match /users/{userId}/projects/{projectId} {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
+
+    match /users/{userId}/settings/workspace {
+      allow read, write: if signedIn() && request.auth.uid == userId;
+    }
+
     match /workspaces/{workspaceId} {
       allow create: if signedIn()
         && workspaceId == request.auth.uid
